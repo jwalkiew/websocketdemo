@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Websockets example</title>
+	</head>
+	
+	<body>
+		<article>
+			<input id="message" type="text" />
+			<br/>
+			<button id="send-button" type="button">Send message</button>
+		</article>
+
+		<p id="log">
+		</p>
+		
+		<script type="text/javascript">
+			var url = "ws://localhost:8080/actions";
+			var websocket = new WebSocket(url);
+
+			var getById = function(id) {
+				return document.getElementById(id);
+			};
+
+			var getCurrentTime = function() {
+				var now = new Date();
+				var year = now.getFullYear();
+				var month = 1 + now.getMonth();
+				var date = now.getDate();
+				var hours = now.getHours();
+				var minutes = now.getMinutes();
+				var seconds = now.getSeconds();
+				var milliseconds = now.getMilliseconds();
+
+				if (month < 10)
+					month = '0' + month;
+
+				if (date < 10)
+					date = '0' + date;
+
+				if (hours < 10)
+					hours = '0' + hours;
+
+				if (minutes < 10)
+					minutes = '0' + minutes;
+
+				if (seconds < 10)
+					seconds = '0' + seconds;
+
+				if (milliseconds < 10)
+					milliseconds = '00' + milliseconds;
+				else if (milliseconds < 100)
+					milliseconds = '0' + milliseconds;
+				
+				var date = year + '-' + month + '-' + date;
+				var time = hours + ':' + minutes + ':' + seconds + ',' + milliseconds;
+				return date + ' ' + time;
+			};
+	
+			var log = function(message) {
+				var info = '[' + getCurrentTime() + '] ' + message;
+				getById('log').innerHTML += info + '<br />'
+			};
+
+			getById('send-button').onclick = function(event) {
+				var message = getById('message').value;
+				log('CLIENT: Send message with content: ' + message)
+				websocket.send(message);
+			};
+	
+			websocket.onopen = function() {
+				var message = 'CLIENT: Connection open';
+				log(message);
+			};
+	
+			websocket.onmessage = function(e) {
+				var message = 'CLIENT: Received message with content: ' + e.data;
+				log(message);
+			};
+	
+			websocket.onclose = function() {
+				var message = 'CLIENT: Connection close';
+				log(message);
+			};
+	
+			websocket.onerror = function(e) {
+				var message = 'CLIENT: Connection error';
+				log(message);
+			};
+		</script>
+	</body>
+</html>
